@@ -85,274 +85,365 @@ const Dashboard = ({ theme, onToggleTheme }) => {
     return () => window.removeEventListener('open-chat-panel', handleOpenChat);
   }, []);
 
+  const handleGenerateFirstEvent = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/audit/log`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        },
+        body: JSON.stringify({
+          event_type: 'sandbox_initialized',
+          metadata_json: {
+            title: 'First Telemetry Event Triggered',
+            message: 'Manually simulated sandbox telemetry check passed.',
+            client: 'ForgeTrack AI Sandbox Dashboard'
+          }
+        })
+      });
+      if (res.ok) {
+        fetchLogs();
+      }
+    } catch (err) {
+      console.error('Failed to generate test event:', err);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#07070a] text-slate-900 dark:text-gray-100 flex font-sans selection:bg-indigo-500/30 transition-colors duration-200">
+    <div className="min-h-screen bg-[#F3F4F6] dark:bg-[#0F172A] w-full flex justify-center items-stretch font-sans selection:bg-indigo-500/30 transition-colors duration-200">
       
-      {/* Background Orbs */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/10 dark:bg-indigo-600/10 rounded-full blur-[140px] pointer-events-none z-0" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-cyan-600/5 dark:bg-cyan-600/5 rounded-full blur-[140px] pointer-events-none z-0" />
+      <div className="w-full max-w-[1440px] flex border-x border-[#E5E7EB] dark:border-[#334155] bg-[#F3F4F6] dark:bg-[#0F172A] relative min-h-screen shadow-2xl">
+        {/* Background Orbs */}
+        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/10 dark:bg-indigo-600/10 rounded-full blur-[140px] pointer-events-none z-0" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-cyan-600/5 dark:bg-cyan-600/5 rounded-full blur-[140px] pointer-events-none z-0" />
 
-      {/* Sidebar Navigation */}
-      <aside className="w-72 bg-white/80 dark:bg-[#0d0d15]/80 border-r border-slate-200 dark:border-white/5 flex flex-col z-20 backdrop-blur-md sticky top-0 h-screen transition-colors duration-200">
-        <div className="p-6 border-b border-slate-200 dark:border-white/5 flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <div>
-            <span className="text-lg font-bold text-slate-900 dark:text-white tracking-wide block">ForgeTrack</span>
-            <span className="text-[10px] text-slate-500 dark:text-gray-500 tracking-widest uppercase font-semibold">AI Testing Suite</span>
-          </div>
-        </div>
-
-        {/* Tab Buttons */}
-        <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-              activeTab === 'overview' 
-                ? 'bg-indigo-50 dark:bg-indigo-600/15 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 shadow-sm dark:shadow-[0_0_15px_-3px_rgba(99,102,241,0.2)]' 
-                : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/[0.02] border border-transparent'
-            }`}
-          >
-            <LayoutDashboard className="w-5 h-5" />
-            <span>Overview & Telemetry</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('resume')}
-            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-              activeTab === 'resume' 
-                ? 'bg-indigo-50 dark:bg-indigo-600/15 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 shadow-sm dark:shadow-[0_0_15px_-3px_rgba(99,102,241,0.2)]' 
-                : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/[0.02] border border-transparent'
-            }`}
-          >
-            <FileText className="w-5 h-5" />
-            <div className="flex-1 flex justify-between items-center">
-              <span>Resume Analyzer</span>
-              {analysis ? (
-                <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
-              ) : (
-                <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]" />
-              )}
+        {/* Sidebar Navigation */}
+        <aside className="w-72 bg-white dark:bg-[#1E293B] border-r border-[#E5E7EB] dark:border-[#334155] flex flex-col z-20 sticky top-0 h-screen transition-colors duration-200 shrink-0">
+          <div className="p-6 border-b border-[#E5E7EB] dark:border-[#334155] flex items-center space-x-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
             </div>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('blueprint')}
-            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-              activeTab === 'blueprint' 
-                ? 'bg-indigo-50 dark:bg-indigo-600/15 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 shadow-sm dark:shadow-[0_0_15px_-3px_rgba(99,102,241,0.2)]' 
-                : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/[0.02] border border-transparent'
-            }`}
-          >
-            <Share2 className="w-5 h-5" />
-            <span>Blueprint Canvas</span>
-          </button>
-
-
-        </nav>
-
-        {/* User profile & logout */}
-        <div className="p-4 border-t border-slate-200 dark:border-white/5 bg-slate-100/50 dark:bg-[#0a0a0f]/50 transition-colors duration-200">
-          <button 
-            onClick={handleLogout} 
-            className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-white hover:bg-red-500/5 dark:hover:bg-red-500/10 hover:border-red-500/10 dark:hover:border-red-500/20 border border-transparent transition-all"
-          >
-            <span className="flex items-center space-x-2">
-              <LogOut className="w-4 h-4 text-red-500 dark:text-red-400" />
-              <span>Sign Out</span>
-            </span>
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content Pane */}
-      <main className="flex-1 flex flex-col z-10 overflow-x-hidden relative h-screen transition-colors duration-200">
-        
-        {/* Navigation Top Header */}
-        <header className="h-20 bg-slate-50/40 dark:bg-[#07070a]/40 border-b border-slate-200 dark:border-white/5 flex items-center justify-between px-8 backdrop-blur-md sticky top-0 z-30 transition-colors duration-200">
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white capitalize">{activeTab.replace('-', ' ')}</h1>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            {analysis && (
-              <div className="flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full text-xs font-semibold">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Resume Loaded</span>
-              </div>
-            )}
-            <div className="flex items-center space-x-2 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1.5 rounded-full text-xs font-semibold text-indigo-600 dark:text-indigo-400">
-              <span className="flex w-1.5 h-1.5 rounded-full bg-indigo-500 dark:bg-indigo-400 animate-pulse"></span>
-              <span>Shadow Auditor Active</span>
+            <div>
+              <span className="text-lg font-bold text-[#1F2937] dark:text-white tracking-wide block">ForgeTrack</span>
+              <span className="text-[10px] text-[#4B5563] dark:text-[#94A3B8] tracking-widest uppercase font-semibold">AI Testing Suite</span>
             </div>
-            {/* Theme Toggle Button */}
+          </div>
+
+          {/* Tab Buttons */}
+          <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
             <button
-              onClick={onToggleTheme}
-              className="p-2.5 rounded-xl border border-slate-200 dark:border-white/5 text-slate-600 dark:text-gray-400 hover:text-slate-950 dark:hover:text-white bg-white dark:bg-white/[0.02] hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-all cursor-pointer shadow-sm"
-              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+              onClick={() => setActiveTab('overview')}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                activeTab === 'overview' 
+                  ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 shadow-sm' 
+                  : 'text-[#4B5563] dark:text-[#94A3B8] hover:text-[#1F2937] dark:hover:text-white hover:bg-gray-150 dark:hover:bg-slate-800/50 border border-transparent'
+              }`}
             >
-              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              <LayoutDashboard className="w-5 h-5 shrink-0" />
+              <span className="font-semibold">Overview & Telemetry</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('resume')}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                activeTab === 'resume' 
+                  ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 shadow-sm' 
+                  : 'text-[#4B5563] dark:text-[#94A3B8] hover:text-[#1F2937] dark:hover:text-white hover:bg-gray-150 dark:hover:bg-slate-800/50 border border-transparent'
+              }`}
+            >
+              <FileText className="w-5 h-5 shrink-0" />
+              <div className="flex-1 flex justify-between items-center min-w-0">
+                <span className="font-semibold truncate">Resume Analyzer</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-orange-500 dark:bg-orange-400 shadow-[0_0_8px_rgba(249,115,22,0.6)] animate-pulse shrink-0 ml-2" />
+              </div>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('blueprint')}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                activeTab === 'blueprint' 
+                  ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 shadow-sm' 
+                  : 'text-[#4B5563] dark:text-[#94A3B8] hover:text-[#1F2937] dark:hover:text-white hover:bg-gray-150 dark:hover:bg-slate-800/50 border border-transparent'
+              }`}
+            >
+              <Share2 className="w-5 h-5 shrink-0" />
+              <span className="font-semibold">Blueprint Canvas</span>
+            </button>
+          </nav>
+
+          {/* User profile & logout */}
+          <div className="p-4 border-t border-[#E5E7EB] dark:border-[#334155] bg-white dark:bg-[#1E293B] transition-colors duration-200">
+            <button 
+              onClick={handleLogout} 
+              className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium text-[#4B5563] dark:text-[#94A3B8] hover:text-red-655 dark:hover:text-red-400 hover:bg-red-500/5 dark:hover:bg-red-500/10 hover:border-red-500/10 dark:hover:border-red-500/20 border border-transparent transition-all"
+            >
+              <span className="flex items-center space-x-2">
+                <LogOut className="w-4 h-4 text-red-500 dark:text-red-400" />
+                <span className="font-semibold">Sign Out</span>
+              </span>
             </button>
           </div>
-        </header>
+        </aside>
 
-        {/* Main Workspace Frame */}
-        <div className="flex-1 p-8 overflow-y-auto">
-          {activeTab === 'overview' && (
-            <div className="space-y-8 max-w-6xl">
-              
-              {/* Welcome Banner */}
-              <div className="relative overflow-hidden bg-gradient-to-r from-indigo-50/40 via-purple-50/20 to-slate-100/30 dark:from-indigo-950/40 dark:via-purple-950/20 dark:to-slate-950/30 border border-indigo-100 dark:border-indigo-500/10 rounded-3xl p-8 shadow-sm dark:shadow-xl transition-all">
-                <div className="absolute right-0 top-0 w-80 h-80 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
-                <div className="relative z-10 space-y-3">
-                  <span className="text-xs bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 font-bold px-3 py-1 rounded-full uppercase tracking-wider">Dashboard Overview</span>
-                  <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">Welcome to your ForgeTrack Sandbox</h2>
-                  <p className="text-slate-600 dark:text-gray-400 max-w-2xl text-base leading-relaxed">
-                    This playground lets you test the core ForgeTrack telemetry flow. Analyze your resume, plan project designs in the Blueprint Flowchart, click "I'm Stuck" on tasks to fire events, and see how the AI dynamically audits and guides you.
-                  </p>
+        {/* Main Content Pane */}
+        <main className="flex-1 flex flex-col z-10 overflow-x-hidden relative h-screen transition-colors duration-200">
+          
+          {/* Navigation Top Header */}
+          <header className="h-20 bg-white/80 dark:bg-[#1E293B]/80 border-b border-[#E5E7EB] dark:border-[#334155] flex items-center justify-between px-8 backdrop-blur-md sticky top-0 z-30 transition-colors duration-200">
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-[#1F2937] dark:text-white capitalize">{activeTab.replace('-', ' ')}</h1>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              {analysis && (
+                <div className="flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-605 dark:text-emerald-400 rounded-full text-xs font-semibold">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Resume Loaded</span>
                 </div>
+              )}
+              <div className="flex items-center space-x-2 bg-blue-500/10 border border-blue-500/20 dark:bg-blue-400/10 dark:border-blue-400/20 px-3 py-1.5 rounded-full text-xs font-semibold text-blue-600 dark:text-blue-400">
+                <span className="flex w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400 animate-pulse"></span>
+                <span>Shadow Auditor Active</span>
               </div>
+              {/* Theme Toggle Button */}
+              <button
+                onClick={onToggleTheme}
+                className="p-2.5 rounded-xl border border-[#E5E7EB] dark:border-[#334155] text-[#4B5563] dark:text-[#94A3B8] hover:text-[#1F2937] dark:hover:text-white bg-white dark:bg-[#1E293B] hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-sm"
+                title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4 text-orange-400" /> : <Moon className="w-4 h-4 text-blue-600" />}
+              </button>
+            </div>
+          </header>
 
-              {/* Status & Telemetry Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Workspace Frame */}
+          <div className="flex-1 p-8 overflow-y-auto">
+            {activeTab === 'overview' && (
+              <div className="space-y-8 max-w-6xl mx-auto">
                 
-                {/* Status Column */}
-                <div className="lg:col-span-1 space-y-6">
-                  <div className="bg-white dark:bg-[#0e0e16]/80 border border-slate-200 dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-lg transition-all">
-                    <h3 className="font-bold text-slate-900 dark:text-white text-lg mb-4 flex items-center space-x-2">
-                      <Sparkles className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
-                      <span>Sandbox State</span>
-                    </h3>
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center text-sm p-3 bg-slate-50 dark:bg-white/[0.02] border border-slate-100 dark:border-white/5 rounded-xl">
-                        <span className="text-slate-500 dark:text-gray-400">Resume Uploaded:</span>
-                        {analysis ? (
-                          <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center"><CheckCircle2 className="w-4 h-4 mr-1 text-emerald-600 dark:text-emerald-400" /> Yes</span>
-                        ) : (
-                          <span className="text-amber-500 font-semibold flex items-center"><AlertCircle className="w-4 h-4 mr-1" /> Missing</span>
-                        )}
+                {/* Welcome Banner */}
+                <div className="relative overflow-hidden bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-blue-500/10 dark:bg-gradient-to-r dark:from-indigo-950/45 dark:via-slate-900/60 dark:to-indigo-900/40 border border-blue-100 dark:border-indigo-500/15 rounded-3xl p-8 shadow-sm dark:shadow-md transition-all">
+                  <div className="absolute right-0 top-0 w-80 h-80 bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+                  <div className="relative z-10 space-y-3">
+                    <span className="text-xs bg-blue-100/80 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 font-bold px-3 py-1 rounded-full uppercase tracking-wider">Dashboard Overview</span>
+                    <h2 className="text-2xl md:text-3xl font-extrabold text-[#1F2937] dark:text-white">Welcome to your ForgeTrack Sandbox</h2>
+                    <p className="text-[#4B5563] dark:text-[#94A3B8] max-w-3xl text-sm md:text-base leading-relaxed">
+                      This playground lets you test the core ForgeTrack telemetry flow. Analyze your resume, plan project designs in the Blueprint Flowchart, click "I'm Stuck" on tasks to fire events, and see how the AI dynamically audits and guides you.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Status & Telemetry Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  
+                  {/* Status & Guide Column */}
+                  <div className="lg:col-span-1 space-y-6">
+                    
+                    {/* Sandbox State Card */}
+                    <div className="bg-white dark:bg-[#1E293B] border border-[#E5E7EB] dark:border-[#334155] rounded-2xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all">
+                      <h3 className="font-bold text-[#1F2937] dark:text-white text-lg mb-4 flex items-center space-x-2">
+                        <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <span>Sandbox State</span>
+                      </h3>
+                      
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center text-sm p-3 bg-slate-50 dark:bg-[#121212]/30 border border-[#E5E7EB] dark:border-[#334155]/60 rounded-xl">
+                          <span className="text-[#4B5563] dark:text-[#94A3B8] font-medium">Resume Uploaded:</span>
+                          {analysis ? (
+                            <span className="text-emerald-605 dark:text-emerald-400 font-bold flex items-center">
+                              <CheckCircle2 className="w-4 h-4 mr-1.5 stroke-[2.5]" /> Yes
+                            </span>
+                          ) : (
+                            <div className="flex items-center space-x-2">
+                              <span className="text-orange-550 dark:text-orange-400 font-semibold flex items-center">
+                                <AlertCircle className="w-4 h-4 mr-1 stroke-[2.5]" /> Missing
+                              </span>
+                              <button
+                                onClick={() => setActiveTab('resume')}
+                                className="px-2.5 py-1 bg-blue-600 hover:bg-blue-750 dark:bg-blue-500 dark:hover:bg-blue-450 text-white rounded-lg text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                              >
+                                Upload Now
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex justify-between items-center text-sm p-3 bg-slate-50 dark:bg-[#121212]/30 border border-[#E5E7EB] dark:border-[#334155]/60 rounded-xl">
+                          <span className="text-[#4B5563] dark:text-[#94A3B8] font-medium">Skills Detected:</span>
+                          <span className="text-[#1F2937] dark:text-white font-bold">{analysis?.skills_detected?.length || 0}</span>
+                        </div>
+
+                        <div className="flex justify-between items-center text-sm p-3 bg-slate-50 dark:bg-[#121212]/30 border border-[#E5E7EB] dark:border-[#334155]/60 rounded-xl">
+                          <span className="text-[#4B5563] dark:text-[#94A3B8] font-medium">Critical Gaps:</span>
+                          <span className={`font-bold ${analysis?.critical_gaps?.length > 0 ? 'text-red-500 dark:text-red-400' : 'text-[#4B5563] dark:text-[#94A3B8]'}`}>
+                            {analysis?.critical_gaps?.length || 0}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center text-sm p-3 bg-slate-50 dark:bg-white/[0.02] border border-slate-100 dark:border-white/5 rounded-xl">
-                        <span className="text-slate-500 dark:text-gray-400">Skills Detected:</span>
-                        <span className="text-slate-900 dark:text-white font-bold">{analysis?.skills_detected?.length || 0}</span>
-                      </div>
-                      <div className="flex justify-between items-center text-sm p-3 bg-slate-50 dark:bg-white/[0.02] border border-slate-100 dark:border-white/5 rounded-xl">
-                        <span className="text-slate-500 dark:text-gray-400">Critical Gaps:</span>
-                        <span className={`font-bold ${analysis?.critical_gaps?.length > 0 ? 'text-red-500 dark:text-red-400' : 'text-slate-500 dark:text-gray-400'}`}>
-                          {analysis?.critical_gaps?.length || 0}
-                        </span>
+                    </div>
+
+                    {/* Testing Guide Card */}
+                    <div className="bg-white dark:bg-[#1E293B] border border-[#E5E7EB] dark:border-[#334155] rounded-2xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all">
+                      <h3 className="font-bold text-[#1F2937] dark:text-white text-lg mb-4 flex items-center space-x-2">
+                        <HelpCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <span>Testing Guide</span>
+                      </h3>
+                      
+                      <div className="space-y-4">
+                        {[
+                          {
+                            step: 1,
+                            title: "Upload Resume Profile",
+                            desc: "Go to the Resume Analyzer tab and upload your PDF resume to analyze your tech-stack."
+                          },
+                          {
+                            step: 2,
+                            title: "Forge Roadmaps",
+                            desc: "Go to Blueprint Canvas, describe your project scope, and click \"Forge Blueprint\" to generate architecture nodes."
+                          },
+                          {
+                            step: 3,
+                            title: "Simulate stuck tasks",
+                            desc: "Click on flowchart nodes, and select \"I'm Stuck\" on tasks to trigger shadow telemetry alerts."
+                          },
+                          {
+                            step: 4,
+                            title: "Dynamic AI Guidance",
+                            desc: "Open the AI Assistant Chat. The AI will intercept and deliver specific code suggestions for your blocker."
+                          },
+                          {
+                            step: 5,
+                            title: "Audit Telemetry logs",
+                            desc: "Observe the live logs populating the telemetry timeline right here in real-time."
+                          }
+                        ].map((item) => (
+                          <div key={item.step} className="flex items-start space-x-3.5">
+                            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 dark:bg-slate-800 text-blue-605 dark:text-blue-400 text-xs font-bold shrink-0 mt-0.5 border border-blue-100 dark:border-slate-700">
+                              {item.step}
+                            </span>
+                            <div className="space-y-0.5">
+                              <h4 className="text-sm font-semibold text-[#1F2937] dark:text-white leading-normal">{item.title}</h4>
+                              <p className="text-xs text-[#4B5563] dark:text-[#94A3B8] leading-relaxed font-normal">{item.desc}</p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-white dark:bg-[#0e0e16]/80 border border-slate-200 dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-lg transition-all">
-                    <h3 className="font-bold text-slate-900 dark:text-white text-lg mb-3 flex items-center space-x-2">
-                      <HelpCircle className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
-                      <span>Testing Guide</span>
-                    </h3>
-                    <ol className="text-sm text-slate-600 dark:text-gray-400 space-y-3 pl-4 list-decimal leading-relaxed">
-                      <li>Go to <strong>Resume Analyzer</strong> and upload a PDF resume.</li>
-                      <li>Go to <strong>Blueprint Canvas</strong>, describe a project, and hit "Forge Blueprint".</li>
-                      <li>Click on flowchart nodes, click <strong>"I'm Stuck"</strong>.</li>
-                      <li>Go to <strong>AI Assistant Chat</strong> and ask a question. Notice how the AI immediately intercepts with personalized guidelines!</li>
-                      <li>Observe live logs in the telemetry timeline.</li>
-                    </ol>
-                  </div>
-                </div>
-
-                {/* Shadow Auditor Live Telemetry Timeline */}
-                <div className="lg:col-span-2 bg-white dark:bg-[#0e0e16]/80 border border-slate-200 dark:border-white/5 rounded-2xl p-6 shadow-sm dark:shadow-lg flex flex-col h-[480px] transition-all">
-                  <div className="flex justify-between items-center mb-6">
-                    <h3 className="font-bold text-slate-900 dark:text-white text-lg flex items-center space-x-2">
-                      <Terminal className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
-                      <span>Shadow Auditor Telemetry Feed</span>
-                    </h3>
-                    <button 
-                      onClick={fetchLogs} 
-                      disabled={isRefreshingLogs}
-                      className="p-1.5 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg border border-slate-200 dark:border-white/5 text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white transition-colors disabled:opacity-50 cursor-pointer"
-                    >
-                      <RefreshCw className={`w-4 h-4 ${isRefreshingLogs ? 'animate-spin' : ''}`} />
-                    </button>
-                  </div>
-                  
-                  <div className="flex-1 overflow-y-auto pr-2 space-y-4">
-                    {logs.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center text-slate-400 dark:text-gray-500 space-y-2">
-                        <Terminal className="w-8 h-8 text-slate-300 dark:text-gray-600" />
-                        <p className="text-sm">No telemetry events logged yet.</p>
-                        <p className="text-xs text-slate-400 dark:text-gray-600">Interactions will appear here in real-time.</p>
-                      </div>
-                    ) : (
-                      logs.map((log) => {
-                        let badgeBg = 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-500/20';
-                        if (log.event_type === 'task_stuck_clicked') {
-                          badgeBg = 'bg-red-50 dark:bg-red-500/15 text-red-600 dark:text-red-400 border-red-100 dark:border-red-500/20 shadow-sm dark:shadow-[0_0_8px_rgba(239,68,68,0.1)]';
-                        } else if (log.event_type === 'view_node') {
-                          badgeBg = 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-500/20';
-                        } else if (log.event_type.includes('complete') || log.event_type.includes('signup')) {
-                          badgeBg = 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20';
-                        }
-                        
-                        return (
-                          <div key={log.id} className="p-4 bg-slate-50 hover:bg-slate-100 dark:bg-white/[0.01] dark:hover:bg-white/[0.02] border border-slate-150 dark:border-white/5 hover:border-slate-200 dark:hover:border-white/10 rounded-xl transition-all flex items-start space-x-4">
-                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${badgeBg} tracking-wide uppercase shrink-0 mt-0.5`}>
-                              {log.event_type.replace('_', ' ')}
-                            </span>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm text-slate-800 dark:text-gray-200 font-medium whitespace-pre-wrap">
-                                {log.metadata_json?.title ? `Viewed node: ${log.metadata_json.title}` : null}
-                                {log.metadata_json?.node_data?.label ? `Stuck on: ${log.metadata_json.node_data.label.split('\n')[0]}` : null}
-                                {!log.metadata_json?.title && !log.metadata_json?.node_data?.label ? JSON.stringify(log.metadata_json) : null}
-                              </p>
-                              <span className="text-[10px] text-slate-400 dark:text-gray-500 block mt-1.5 font-mono">
-                                {new Date(log.timestamp).toLocaleTimeString()} · ID: {log.id}
-                              </span>
-                            </div>
+                  {/* Shadow Auditor Live Telemetry Timeline */}
+                  <div className="lg:col-span-2 bg-white dark:bg-[#1E293B] border border-[#E5E7EB] dark:border-[#334155] rounded-2xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col h-[600px] transition-all">
+                    <div className="flex justify-between items-center mb-6">
+                      <h3 className="font-bold text-[#1F2937] dark:text-white text-lg flex items-center space-x-2">
+                        <Terminal className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <span>Shadow Auditor Telemetry Feed</span>
+                      </h3>
+                      <button 
+                        onClick={fetchLogs} 
+                        disabled={isRefreshingLogs}
+                        className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg border border-[#E5E7EB] dark:border-[#334155] text-[#4B5563] hover:text-[#1F2937] dark:text-[#94A3B8] dark:hover:text-white transition-colors disabled:opacity-50 cursor-pointer"
+                        title="Refresh Telemetry Timeline"
+                      >
+                        <RefreshCw className={`w-4 h-4 ${isRefreshingLogs ? 'animate-spin' : ''}`} />
+                      </button>
+                    </div>
+                    
+                    <div className="flex-1 overflow-y-auto pr-2 space-y-4 flex flex-col justify-start">
+                      {logs.length === 0 ? (
+                        <div className="flex-1 flex flex-col items-center justify-center text-center p-6 space-y-4 my-auto">
+                          {/* Radar animation SVG */}
+                          <div className="relative flex items-center justify-center w-24 h-24 rounded-full bg-blue-500/5 dark:bg-blue-400/5 border border-blue-500/10 dark:border-blue-400/10">
+                            <svg className="w-16 h-16 text-blue-600 dark:text-blue-450" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                              {/* Concentric circles */}
+                              <circle cx="12" cy="12" r="10" strokeDasharray="3 3" className="opacity-30" />
+                              <circle cx="12" cy="12" r="6" strokeDasharray="2 2" className="opacity-50" />
+                              <circle cx="12" cy="12" r="2" fill="currentColor" className="animate-ping text-blue-500 dark:text-blue-400" />
+                              {/* Radar sweeper arm */}
+                              <line x1="12" y1="12" x2="20" y2="7" className="animate-[spin_4s_linear_infinite]" style={{ transformOrigin: '12px 12px' }} />
+                            </svg>
                           </div>
-                        );
-                      })
-                    )}
+                          
+                          <div className="space-y-1.5 max-w-sm">
+                            <p className="text-sm font-semibold text-[#1F2937] dark:text-white">No telemetry events logged yet.</p>
+                            <p className="text-xs text-[#4B5563] dark:text-[#94A3B8] leading-relaxed">Interactions will appear here in real-time.</p>
+                          </div>
+                          
+                          <button
+                            onClick={handleGenerateFirstEvent}
+                            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-750 dark:bg-blue-500 dark:hover:bg-blue-400 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/15 hover:shadow-lg hover:shadow-blue-500/20 active:scale-95 transition-all duration-150 cursor-pointer"
+                          >
+                            Generate First Event
+                          </button>
+                        </div>
+                      ) : (
+                        logs.map((log) => {
+                          let badgeBg = 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-150 dark:border-indigo-500/20';
+                          if (log.event_type === 'task_stuck_clicked') {
+                            badgeBg = 'bg-red-50 dark:bg-red-500/15 text-red-650 dark:text-red-400 border-red-150 dark:border-red-500/20 shadow-sm';
+                          } else if (log.event_type === 'view_node') {
+                            badgeBg = 'bg-blue-50 dark:bg-blue-500/10 text-blue-650 dark:text-blue-400 border-blue-150 dark:border-blue-500/20';
+                          } else if (log.event_type.includes('complete') || log.event_type.includes('signup')) {
+                            badgeBg = 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-650 dark:text-emerald-400 border-emerald-150 dark:border-emerald-500/20';
+                          }
+                          
+                          return (
+                            <div key={log.id} className="p-4 bg-white dark:bg-[#121212]/20 border border-[#E5E7EB] dark:border-[#334155]/60 hover:border-blue-200 dark:hover:border-blue-900/40 rounded-xl transition-all flex items-start space-x-4">
+                              <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${badgeBg} tracking-wide uppercase shrink-0 mt-0.5`}>
+                                {log.event_type.replace('_', ' ')}
+                              </span>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm text-[#1F2937] dark:text-white font-medium whitespace-pre-wrap">
+                                  {log.metadata_json?.title ? `Viewed node: ${log.metadata_json.title}` : null}
+                                  {log.metadata_json?.node_data?.label ? `Stuck on: ${log.metadata_json.node_data.label.split('\n')[0]}` : null}
+                                  {!log.metadata_json?.title && !log.metadata_json?.node_data?.label ? (log.metadata_json?.message || JSON.stringify(log.metadata_json)) : null}
+                                </p>
+                                <span className="text-[10px] text-[#4B5563] dark:text-[#94A3B8] block mt-1.5 font-mono">
+                                  {new Date(log.timestamp).toLocaleTimeString()} · ID: {log.id}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
                   </div>
+
                 </div>
 
               </div>
+            )}
 
-            </div>
-          )}
+            {activeTab === 'resume' && (
+              <div className="opacity-0 animate-[fadeIn_0.3s_ease-out_forwards]">
+                <style>{`
+                  @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(8px); }
+                    to { opacity: 1; transform: translateY(0); }
+                  }
+                `}</style>
+                <ResumeAnalyzer onAnalysisComplete={handleAnalysisComplete} analysisData={analysis} theme={theme} />
+              </div>
+            )}
 
-          {activeTab === 'resume' && (
-            <div className="opacity-0 animate-[fadeIn_0.3s_ease-out_forwards]">
-              <style>{`
-                @keyframes fadeIn {
-                  from { opacity: 0; transform: translateY(8px); }
-                  to { opacity: 1; transform: translateY(0); }
-                }
-              `}</style>
-              <ResumeAnalyzer onAnalysisComplete={handleAnalysisComplete} analysisData={analysis} theme={theme} />
-            </div>
-          )}
+            {activeTab === 'blueprint' && (
+              <div className="opacity-0 animate-[fadeIn_0.3s_ease-out_forwards] h-full flex flex-col">
+                <style>{`
+                  @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(8px); }
+                    to { opacity: 1; transform: translateY(0); }
+                  }
+                `}</style>
+                <IdeaForgeCanvas criticalGaps={analysis?.critical_gaps || []} theme={theme} />
+              </div>
+            )}
 
-          {activeTab === 'blueprint' && (
-            <div className="opacity-0 animate-[fadeIn_0.3s_ease-out_forwards] h-full flex flex-col">
-              <style>{`
-                @keyframes fadeIn {
-                  from { opacity: 0; transform: translateY(8px); }
-                  to { opacity: 1; transform: translateY(0); }
-                }
-              `}</style>
-              <IdeaForgeCanvas criticalGaps={analysis?.critical_gaps || []} theme={theme} />
-            </div>
-          )}
+          </div>
 
-
-
-        </div>
-
-      </main>
+        </main>
+      </div>
     </div>
   );
 };
